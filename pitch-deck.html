@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gix — Pitch Deck</title>
+  <style>
+    /* ── Reset & base ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:        #0A0F1E;
+      --bg2:       #111827;
+      --accent:    #4F8EF7;
+      --accent2:   #9B59B6;
+      --gold:      #F5C518;
+      --text:      #E8EBF0;
+      --muted:     #8899AA;
+      --card:      rgba(255,255,255,0.05);
+      --border:    rgba(255,255,255,0.08);
+      --radius:    12px;
+      --slide-w:   900px;
+      --slide-h:   506px;   /* 16:9 */
+    }
+    html, body {
+      background: #050810;
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      color: var(--text);
+      height: 100%;
+    }
+
+    /* ── Stars background ── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0;
+      background-image:
+        radial-gradient(1px 1px at  5%  8%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 15% 22%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 28%  4%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 42% 15%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 55%  7%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 68% 19%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 80%  3%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 92% 12%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at  3% 40%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 22% 35%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 38% 48%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 52% 32%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 73% 44%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 88% 38%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 10% 65%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 30% 72%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 47% 60%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 62% 78%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 78% 55%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 95% 68%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 18% 90%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 44% 85%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 66% 92%, #fff 0%, transparent 100%),
+        radial-gradient(1px 1px at 83% 88%, #fff 0%, transparent 100%);
+      opacity: 0.5;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* ── Layout ── */
+    .deck {
+      position: relative; z-index: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px 80px;
+      gap: 60px;
+    }
+
+    /* ── Slide wrapper ── */
+    .slide {
+      width: var(--slide-w);
+      max-width: 100%;
+      min-height: var(--slide-h);
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+      overflow: hidden;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .slide-number {
+      position: absolute;
+      bottom: 14px; right: 18px;
+      font-size: 11px;
+      color: var(--muted);
+      letter-spacing: 1px;
+    }
+
+    /* ── Common elements ── */
+    .tag {
+      display: inline-block;
+      background: rgba(79,142,247,0.15);
+      color: var(--accent);
+      border: 1px solid rgba(79,142,247,0.3);
+      border-radius: 20px;
+      padding: 4px 14px;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 1.2px;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+    }
+    h1 { font-size: 44px; font-weight: 800; line-height: 1.15; }
+    h2 { font-size: 28px; font-weight: 700; }
+    h3 { font-size: 18px; font-weight: 700; }
+    .subtitle { font-size: 18px; color: var(--muted); margin-top: 10px; }
+    .muted { color: var(--muted); }
+
+    /* ── Slide 1: Title ── */
+    .slide-title {
+      background: radial-gradient(ellipse at 30% 50%, rgba(79,142,247,0.12) 0%, transparent 60%),
+                  radial-gradient(ellipse at 75% 30%, rgba(155,89,182,0.10) 0%, transparent 55%),
+                  var(--bg);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 60px;
+    }
+    .slide-title .logo {
+      width: 72px; height: 72px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border-radius: 20px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 38px;
+      margin: 0 auto 24px;
+      box-shadow: 0 0 30px rgba(79,142,247,0.4);
+    }
+    .slide-title h1 { background: linear-gradient(90deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+    .slide-title .tagline { font-size: 20px; color: var(--muted); margin-top: 12px; }
+    .slide-title .brand { font-size: 13px; color: var(--muted); margin-top: 30px; letter-spacing: 2px; }
+
+    /* ── Slide 2: Problem ── */
+    .slide-body {
+      display: flex;
+      flex-direction: column;
+      padding: 44px 52px;
+      gap: 24px;
+    }
+    .problem-grid {
+      display: grid;
+      grid-template-columns: repeat(3,1fr);
+      gap: 14px;
+    }
+    .problem-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .problem-card .icon { font-size: 26px; }
+    .problem-card h3 { font-size: 14px; color: var(--text); }
+    .problem-card p  { font-size: 12px; color: var(--muted); line-height: 1.5; }
+
+    /* ── Slide 3: Solution ── */
+    .solution-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+    .phone-mock {
+      background: linear-gradient(145deg, #1a2035, #0d1322);
+      border: 2px solid rgba(79,142,247,0.3);
+      border-radius: 24px;
+      min-height: 200px;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 12px;
+      font-size: 40px;
+      box-shadow: 0 0 30px rgba(79,142,247,0.15), inset 0 0 20px rgba(79,142,247,0.05);
+    }
+    .phone-mock p { font-size: 13px; color: var(--muted); text-align: center; padding: 0 20px; }
+    .feature-list { display: flex; flex-direction: column; justify-content: center; gap: 14px; }
+    .feature-item { display: flex; align-items: flex-start; gap: 12px; }
+    .feature-item .dot {
+      flex-shrink: 0;
+      width: 8px; height: 8px;
+      background: var(--accent);
+      border-radius: 50%;
+      margin-top: 6px;
+      box-shadow: 0 0 8px var(--accent);
+    }
+    .feature-item h3 { font-size: 14px; margin-bottom: 2px; }
+    .feature-item p  { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+    /* ── Slide 4: Features grid ── */
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .feat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 18px 16px;
+    }
+    .feat-card .icon { font-size: 28px; margin-bottom: 8px; }
+    .feat-card h3    { font-size: 14px; margin-bottom: 5px; }
+    .feat-card p     { font-size: 12px; color: var(--muted); line-height: 1.45; }
+
+    /* ── Slide 5: Market ── */
+    .market-layout {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 28px;
+    }
+    .stat-box {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      text-align: center;
+    }
+    .stat-box .big { font-size: 36px; font-weight: 800; color: var(--accent); }
+    .stat-box .label { font-size: 12px; color: var(--muted); margin-top: 4px; }
+    .market-stats { display: flex; flex-direction: column; gap: 14px; }
+    .segment-bar { display: flex; flex-direction: column; gap: 4px; }
+    .segment-bar .bar-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--muted); }
+    .bar-track { height: 8px; background: rgba(255,255,255,0.07); border-radius: 4px; overflow: hidden; }
+    .bar-fill  { height: 100%; border-radius: 4px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+
+    /* ── Slide 6: Business Model ── */
+    .biz-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .biz-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 16px;
+      display: flex; flex-direction: column; gap: 8px;
+    }
+    .biz-card .tier  { font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; color: var(--accent); }
+    .biz-card .price { font-size: 26px; font-weight: 800; }
+    .biz-card .price span { font-size: 13px; font-weight: 400; color: var(--muted); }
+    .biz-card ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+    .biz-card ul li { font-size: 12px; color: var(--muted); padding-left: 14px; position: relative; }
+    .biz-card ul li::before { content: '✓'; position: absolute; left: 0; color: var(--accent); font-size: 10px; }
+
+    /* ── Slide 7: Roadmap ── */
+    .roadmap {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .phase {
+      display: flex;
+      gap: 16px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 14px 18px;
+      align-items: flex-start;
+    }
+    .phase-badge {
+      flex-shrink: 0;
+      background: rgba(79,142,247,0.15);
+      border: 1px solid rgba(79,142,247,0.3);
+      color: var(--accent);
+      border-radius: 8px;
+      padding: 6px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.5px;
+      white-space: nowrap;
+    }
+    .phase-badge.done  { background: rgba(34,197,94,0.12); border-color: rgba(34,197,94,0.3); color: #22C55E; }
+    .phase-badge.now   { background: rgba(245,197,24,0.12); border-color: rgba(245,197,24,0.3); color: var(--gold); }
+    .phase-badge.next  { background: rgba(79,142,247,0.12); border-color: rgba(79,142,247,0.3); color: var(--accent); }
+    .phase-badge.later { background: rgba(155,89,182,0.12); border-color: rgba(155,89,182,0.3); color: #C084FC; }
+    .phase-content h3  { font-size: 14px; margin-bottom: 3px; }
+    .phase-content p   { font-size: 12px; color: var(--muted); line-height: 1.4; }
+
+    /* ── Slide 8: Team ── */
+    .team-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px;
+    }
+    .team-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 20px 16px;
+      text-align: center;
+    }
+    .team-card .avatar { font-size: 36px; margin-bottom: 10px; }
+    .team-card .role   { font-size: 11px; color: var(--accent); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+    .team-card h3      { font-size: 15px; margin-bottom: 6px; }
+    .team-card p       { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .team-card .status { font-size: 11px; margin-top: 8px; }
+    .status.open  { color: var(--gold); }
+    .status.found { color: #22C55E; }
+
+    /* ── Slide 9: Funding ── */
+    .funding-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .fund-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 16px 18px;
+    }
+    .fund-card h3  { font-size: 14px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; }
+    .fund-card ul  { list-style: none; }
+    .fund-card ul li { font-size: 12px; color: var(--muted); padding: 3px 0 3px 14px; position: relative; }
+    .fund-card ul li::before { content: '→'; position: absolute; left: 0; color: var(--accent); }
+
+    /* ── Slide 10: CTA ── */
+    .slide-cta {
+      background: radial-gradient(ellipse at 50% 50%, rgba(79,142,247,0.15) 0%, transparent 65%),
+                  var(--bg);
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 50px;
+    }
+    .slide-cta h2 { font-size: 34px; font-weight: 800; margin-bottom: 14px; }
+    .slide-cta p  { font-size: 16px; color: var(--muted); max-width: 500px; margin: 0 auto 30px; line-height: 1.6; }
+    .cta-actions  { display: flex; gap: 14px; justify-content: center; flex-wrap: wrap; }
+    .btn {
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      text-decoration: none;
+      display: inline-block;
+    }
+    .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff; box-shadow: 0 4px 20px rgba(79,142,247,0.4); }
+    .btn-outline { background: transparent; color: var(--text); border: 1px solid var(--border); }
+    .contact-row { display: flex; gap: 28px; justify-content: center; margin-top: 20px; flex-wrap: wrap; }
+    .contact-row span { font-size: 13px; color: var(--muted); }
+
+    /* ── Navigation hint ── */
+    .nav-hint {
+      text-align: center;
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: -20px;
+    }
+
+    /* ── Slide header bar ── */
+    .slide-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 22px 0;
+    }
+    .slide-header .dot-red   { width: 10px; height: 10px; border-radius: 50%; background: #FF5F57; }
+    .slide-header .dot-amber { width: 10px; height: 10px; border-radius: 50%; background: #FEBC2E; }
+    .slide-header .dot-green { width: 10px; height: 10px; border-radius: 50%; background: #28C840; }
+    .slide-header .title-bar { flex: 1; height: 6px; background: var(--card); border-radius: 3px; }
+
+    /* ── Accent line ── */
+    .accent-line {
+      height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+      width: 48px;
+      border-radius: 2px;
+      margin-bottom: 16px;
+    }
+
+    /* ── Highlight box ── */
+    .highlight {
+      background: rgba(79,142,247,0.08);
+      border: 1px solid rgba(79,142,247,0.2);
+      border-radius: 10px;
+      padding: 14px 18px;
+      font-size: 14px;
+      color: var(--accent);
+      text-align: center;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- ─── Slide 1: Title ─── -->
+  <div class="slide slide-title">
+    <div class="logo">🔭</div>
+    <h1>Gix</h1>
+    <p class="tagline">L'Œil Satellites — Voyez le ciel autrement</p>
+    <p class="brand" style="margin-top:20px; font-size:14px; color:#8899AA; max-width:440px; line-height:1.7;">
+      Application mobile AR de suivi de satellites et de cartographie stellaire en temps réel
+    </p>
+    <p class="brand">Pitch Deck — 2024 · Confidentiel</p>
+    <div class="slide-number">01 / 10</div>
+  </div>
+
+  <!-- ─── Slide 2: Problem ─── -->
+  <div class="slide">
+    <div class="slide-header"><div class="dot-red"></div><div class="dot-amber"></div><div class="dot-green"></div><div class="title-bar"></div></div>
+    <div class="slide-body">
+      <div>
+        <div class="tag">Problème</div>
+        <h2>Observer le ciel reste difficile et inaccessible</h2>
+        <p class="subtitle muted" style="margin-top:8px;font-size:14px;">Des millions d'enthousiastes peinent à identifier ce qu'ils voient dans le ciel nocturne.</p>
+      </div>
+      <div class="problem-grid">
+        <div class="problem-card">
+          <div class="icon">🛰️</div>
+          <h3>Satellites invisibles</h3>
+          <p>Plus de 8 000 satellites en orbite, mais aucun outil grand public ne permet de les identifier en temps réel à l'œil nu.</p>
+        </div>
+        <div class="problem-card">
+          <div class="icon">🌟</div>
+          <h3>Étoiles non identifiées</h3>
+          <p>Les applications existantes sont complexes, réservées aux astronomes confirmés, avec des interfaces peu intuitives.</p>
+        </div>
+        <div class="problem-card">
+          <div class="icon">📡</div>
+          <h3>Alertes manquées</h3>
+          <p>Le passage de l'ISS est un spectacle exceptionnel, mais les notifications arrivent trop tard ou pas du tout.</p>
+        </div>
+      </div>
+      <div class="highlight">💡 3,2 milliards de personnes vivent dans des zones où l'ISS est visible à l'œil nu — sans jamais le savoir.</div>
+    </div>
+    <div class="slide-number">02 / 10</div>
+  </div>
+
+  <!-- ─── Slide 3: Solution ─── -->
+  <div class="slide">
+    <div class="slide-header"><div class="dot-red"></div><div class="dot-amber"></div><div class="dot-green"></div><div class="title-bar"></div></div>
+    <div class="slide-body">
+      <div>
+        <div class="tag">Solution</div>
+        <h2>Pointez, découvrez, explorez</h2>
+      </div>
+      <div class="solution-layout">
+        <div class="phone-mock">
+          🔭
+          <p>Caméra AR + overlay<br>satellites & étoiles<br>en temps réel</p>
+        </div>
+        <div class="feature-list">
+          <div class="feature-item">
+            <div class="dot"></div>
+            <div>
+              <h3>Mode AR instantané</h3>
+              <p>Pointez votre téléphone vers le ciel : les satellites et étoiles s'affichent avec leurs noms et données en surimpression.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="dot"></div>
+            <div>
+              <h3>Suivi SGP4 précis</h3>
+              <p>Positions calculées via algorithme SGP4 à partir des données TLE de CelesTrak — mises à jour toutes les 5 secondes.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="dot"></div>
+            <div>
+              <h3>Alertes ISS intelligentes</h3>
+              <p>Notification push 15 min avant chaque passage visible depuis votre position GPS.</p>
+            </div>
+          </div>
+          <div class="feature-item">
+            <div class="dot"></div>
+            <div>
+              <h3>Carte mondiale satellite</h3>
+              <p>Vue Leaflet interactive montrant tous les satellites au-dessus de vous avec trajectoires et paramètres orbitaux.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">03 / 10</div>
+  </div>
+
+  <!-- ─── Slide 4: Features ─── -->
+  <div class="slide">
+    <div class="slide-header"><div class="dot-red"></div><div class="dot-amber"></div><div class="dot-green"></div><div class="title-bar"></div></div>
+    <div class="slide-body">
+      <div>
+        <div class="tag">Fonctionnalités</div>
+        <h2>Un écosystème complet pour l'observation</h2>
+      </div>
+      <div class="features-grid">
+        <div class="feat-card">
+          <div class="icon">📱</div>
+          <h3>AR Sky View</h3>
+          <p>Superposition réalité augmentée des satellites, étoiles et constellations via la caméra du smartphone.</p>
+        </div>
+        <div class="feat-card">
+          <div class="icon">🗺️</div>
+          <h3>Carte satellite live</h3>
+          <p>Carte mondiale Leaflet avec marqueurs de satellites se déplaçant en temps réel, filtrables par type.</p>
+        </div>
+        <div class="feat-card">
+          <div class="icon">🔔</div>
+          <h3>Notifications ISS</h3>
+          <p>Alertes personnalisées pour les passages ISS, Hubble, et événements astronomiques (éclipses, météores).</p>
+        </div>
+        <div class="feat-card">
+          <div class="icon">⭐</div>
+          <h3>Catalogue HYG</h3>
+          <p>51 000+ étoiles issues du catalogue HYG/Hipparcos avec magnitudes, distances et noms propres.</p>
+        </div>
+        <div class="feat-card">
+          <div class="icon">🛸</div>
+          <h3>Vue ISS</h3>
+          <p>Perspective "ce que voit l'ISS" depuis son orbite avec position sur la carte en temps réel.</p>
+        </div>
+        <div class="feat-card">
+          <div class="icon">📊</div>
+          <h3>Données orbitales</h3>
+          <p>Altitude, vitesse, inclinaison, période, angle d'élévation — tout sur chaque satellite sélectionné.</p>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">04 / 10</div>
+  </div>
+
+  <!-- ─── Slide 5: Market ─── -->
+  <div class="slide">
+    <div class="slide-header"><div class="dot-red"></div><div class="dot-amber"></div><div class="dot-green"></div><div class="title-bar"></div></div>
+    <div class="slide-body">
+      <div>
+        <div class="tag">Marché</div>
+        <h2>Un marché en pleine expansion</h2>
+      </div>
+      <div class="market-layout">
+        <div class="market-stats">
+          <div class="stat-box">
+            <div class="big">$2.1B</div>
+            <div class="label">Marché mondial apps astronomie 2024</div>
+          </div>
+          <div class="stat-box">
+            <div class="big">18%</div>
+            <div class="label">Croissance annuelle (CAGR) jusqu'en 2030</div>
+          </div>
+          <div class="stat-box">
+            <div class="big">450M</div>
+            <div class="label">Astronomes amateurs dans le monde</div>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:14px; justify-content:center;">
+          <h3 style="font-size:15px; margin-bottom:4px;">Segments cibles</h3>
+          <div class="segment-bar">
+            <div class="bar-label"><span>🔭 Astronomes amateurs</span><span>35%</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:35%"></div></div>
+          </div>
+          <div class="segment-bar">
+            <div class="bar-label"><span>📚 Étudiants & enseignants</span><span>25%</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:25%"></div></div>
+          </div>
+          <div class="segment-bar">
+            <div class="bar-label"><span>🌍 Curieux du spatial</span><span>30%</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:30%"></div></div>
+          </div>
+          <div class="segment-bar">
+            <div class="bar-label"><span>🏢 Professionnels & secteur spatial</span><span>10%</span></div>
+            <div class="bar-track"><div class="bar-fill" style="width:10%"></div></div>
+          </div>
+          <div class="highlight" style="margin-top:4px; font-size:12px;">
+            Concurrent principal : <strong>SkySafari</strong> ($3.99, 5M+ téléchargements) — sans AR temps réel ni alertes ISS
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">05 / 10</div>
+  </div>
+
+  <!-- ─── Slide 6: Business Model ─── -->
+  <div class="slide">
+    <div class="slide-header"><div class="dot-red"></div><div class="dot-amber"></div><div class="dot-green"></div><div class="title-bar"></div></div>
+    <div class="slide-body">
+      <div>
+        <div class="tag">Modèle économique</div>
+        <h2>Freemium + Partenariats institutionnels</h2>
+      </div>
+      <div class="biz-grid">
+        <div class="biz-card">
+          <div class="tier">Gratuit</div>
+          <div class="price">0€ <span>/ mois</span></div>
+          <ul>
+            <li>Carte satellite (10 satellites)</li>
+            <li>Vue ciel 2D basique</li>
+            <li>Alertes ISS (1/semaine)</li>
+            <li>Catalogue 500 étoiles</li>
+          </ul>
+        </div>
+        <div class="biz-card" style="border-color: rgba(79,142,247,0.4);">
+          <div class="tier">Pro</div>
+          <div class="price">2,99€ <span>/ mois</span></div>
+          <ul>
+            <li>Tous les satellites (8 000+)</li>
+            <li>Mode AR complet</li>
+            <li>Alertes illimitées</li>
+            <li>Catalogue HYG complet</li>
+            <li>Vue ISS temps réel</li>
+            <li>Données orbitales avancées</li>
+          </ul>
+        </div>
+        <div class="biz-card">
+          <div class="tier">Institutionnel</div>
+          <div class="price">Sur devis</div>
+          <ul>
+            <li>Planétariums & observatoires</li>
+            <li>Établissements scolaires</li>
+            <li>API accès données</li>
+            <li>White-label possible</li>
+            <li>Support dédié</li>
+          </ul>
+        </div>
+      </div>
+      <div class="highlight">🎯 Objectif an 1 : 10 000 utilisateurs actifs · 5% taux conversion Pro · ARR ~18 000€</div>
+    </div>
+    <div class="slide-number">06 / 10</div>
+  </div>
+
+  <!-- ─── Slide 7: Roadmap ─── -->
+  <div class="slide">
+    <div class="slide-header"><div class="dot-red"></div><div class="dot-amber"></div><div class="dot-green"></div><div class="title-bar"></div></div>
+    <div class="slide-body">
+      <div>
+        <div class="tag">Roadmap</div>
+        <h2>Développement par étapes</h2>
+      </div>
+      <div class="roadmap">
+        <div class="phase">
+          <div class="phase-badge done">✓ Étape 1</div>
+          <div class="phase-content">
+            <h3>MVP Web — Prototype fonctionnel</h3>
+            <p>Carte Leaflet + positions satellites SGP4 + vue ciel 2D + panneau de détail · <em>Livré</em></p>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-badge now">▶ Étape 2</div>
+          <div class="phase-content">
+            <h3>Prototype Figma & Pitch Deck</h3>
+            <p>Maquettes haute-fidélité de toutes les écrans · Pitch deck complet pour lever de fonds · <em>En cours</em></p>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-badge next">→ Étape 3</div>
+          <div class="phase-content">
+            <h3>App Mobile iOS/Android (Unity + AR Foundation)</h3>
+            <p>Moteur AR, catalogue stellaire HYG, SGP4 temps réel, notifications push FCM · <em>Q2 2024</em></p>
+          </div>
+        </div>
+        <div class="phase">
+          <div class="phase-badge later">◎ Étape 4</div>
+          <div class="phase-content">
+            <h3>Fonctionnalités sociales & lancement</h3>
+            <p>Observations partagées, événements communautaires, partenariats planétariums · <em>Q4 2024</em></p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">07 / 10</div>
+  </div>
+
+  <!-- ─── Slide 8: Team ─── -->
+  <div class="slide">
+    <div class="slide-header"><div class="dot-red"></div><div class="dot-amber"></div><div class="dot-green"></div><div class="title-bar"></div></div>
+    <div class="slide-body">
+      <div>
+        <div class="tag">Équipe</div>
+        <h2>Profils recherchés</h2>
+      </div>
+      <div class="team-grid">
+        <div class="team-card">
+          <div class="avatar">👨‍💻</div>
+          <div class="role">Fondateur</div>
+          <h3>Développeur Mobile</h3>
+          <p>Swift / Kotlin ou Unity + AR Foundation. Vision produit et architecture technique.</p>
+          <div class="status found">✓ Poste fondateur</div>
+        </div>
+        <div class="team-card">
+          <div class="avatar">🎨</div>
+          <div class="role">Cofondateur — Recherché</div>
+          <h3>UX / UI Designer</h3>
+          <p>Expérience en design d'interface spatiale ou apps de visualisation de données complexes.</p>
+          <div class="status open">⬡ Recrutement ouvert</div>
+        </div>
+        <div class="team-card">
+          <div class="avatar">🔭</div>
+          <div class="role">Conseiller — Recherché</div>
+          <h3>Astronome Amateur</h3>
+          <p>Validation des données astronomiques, réseau dans les clubs d'astronomie et planétariums.</p>
+          <div class="status open">⬡ Recrutement ouvert</div>
+        </div>
+      </div>
+      <div class="highlight" style="font-size:12px;">
+        💼 Intéressé(e) ? Rejoignez l'aventure : gix-contact@example.com · Communauté Astronomie France
+      </div>
+    </div>
+    <div class="slide-number">08 / 10</div>
+  </div>
+
+  <!-- ─── Slide 9: Funding ─── -->
+  <div class="slide">
+    <div class="slide-header"><div class="dot-red"></div><div class="dot-amber"></div><div class="dot-green"></div><div class="title-bar"></div></div>
+    <div class="slide-body">
+      <div>
+        <div class="tag">Financement</div>
+        <h2>Stratégie de financement & partenariats</h2>
+      </div>
+      <div class="funding-grid">
+        <div class="fund-card">
+          <h3>🏛️ Subventions publiques</h3>
+          <ul>
+            <li>BPI France — Aide à l'innovation</li>
+            <li>ESA BIC — Business Incubation Centre</li>
+            <li>CNES — Programme Entrepreneurs</li>
+            <li>Fonds régionaux innovation numérique</li>
+          </ul>
+        </div>
+        <div class="fund-card">
+          <h3>🎯 Crowdfunding</h3>
+          <ul>
+            <li>Kickstarter — campagne internationale</li>
+            <li>Ulule — communauté francophone</li>
+            <li>Objectif : 30 000€ en pré-commandes</li>
+            <li>Validation marché simultanée</li>
+          </ul>
+        </div>
+        <div class="fund-card">
+          <h3>🤝 Partenariats stratégiques</h3>
+          <ul>
+            <li>Associations d'astronomie (SAF, AAVSO)</li>
+            <li>Planétariums & observatoires</li>
+            <li>Fournisseurs de télescopes (Celestron)</li>
+            <li>Éditeurs éducatifs</li>
+          </ul>
+        </div>
+        <div class="fund-card">
+          <h3>💰 Levée de fonds Seed</h3>
+          <ul>
+            <li>Cible : 150 000€</li>
+            <li>Valorisation pré-money : 600 000€</li>
+            <li>Usage : dev mobile 60%, marketing 25%, ops 15%</li>
+            <li>Horizon rentabilité : 18 mois</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="slide-number">09 / 10</div>
+  </div>
+
+  <!-- ─── Slide 10: CTA ─── -->
+  <div class="slide slide-cta">
+    <h2>🚀 Rejoignez l'aventure Gix</h2>
+    <p>Nous construisons l'application qui rend le cosmos accessible à tous. Que vous soyez investisseur, développeur, designer ou passionné d'astronomie — votre place est dans notre équipe.</p>
+    <div class="cta-actions">
+      <a href="prototype.html" class="btn btn-primary">Voir le prototype →</a>
+      <span class="btn btn-outline">Demander le dossier complet</span>
+    </div>
+    <div class="contact-row">
+      <span>📧 gix-contact@example.com</span>
+      <span>🌐 github.com/sdoukoure12/Gix</span>
+      <span>📍 France</span>
+    </div>
+    <div class="slide-number">10 / 10</div>
+  </div>
+
+</div>
+</body>
+</html>

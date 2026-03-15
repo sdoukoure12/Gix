@@ -1,0 +1,1097 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gix — Prototype</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --bg:      #0A0F1E;
+      --bg2:     #111827;
+      --bg3:     #161D2F;
+      --accent:  #4F8EF7;
+      --accent2: #9B59B6;
+      --green:   #22C55E;
+      --gold:    #F5C518;
+      --red:     #EF4444;
+      --text:    #E8EBF0;
+      --muted:   #8899AA;
+      --border:  rgba(255,255,255,0.08);
+      --card:    rgba(255,255,255,0.05);
+    }
+    html, body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: #050810;
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ── Page layout ── */
+    .page-wrapper {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+    .page-title {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+    .page-title h1 { font-size: 32px; font-weight: 800; }
+    .page-title p  { font-size: 15px; color: var(--muted); margin-top: 6px; }
+    .back-link {
+      display: inline-flex; align-items: center; gap: 6px;
+      font-size: 13px; color: var(--muted); text-decoration: none;
+      margin-bottom: 28px;
+    }
+    .back-link:hover { color: var(--accent); }
+
+    /* ── Screen tabs ── */
+    .tabs {
+      display: flex;
+      gap: 8px;
+      justify-content: center;
+      flex-wrap: wrap;
+      margin-bottom: 32px;
+    }
+    .tab {
+      padding: 8px 18px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--muted);
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 600;
+      transition: all .2s;
+    }
+    .tab:hover    { border-color: rgba(79,142,247,0.4); color: var(--text); }
+    .tab.active   { background: rgba(79,142,247,0.15); border-color: rgba(79,142,247,0.5); color: var(--accent); }
+
+    /* ── Phone frame ── */
+    .phone-stage {
+      display: flex;
+      justify-content: center;
+    }
+    .phone {
+      width: 375px;
+      min-height: 812px;
+      background: var(--bg);
+      border: 2px solid rgba(255,255,255,0.12);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 0 1px rgba(255,255,255,0.04);
+    }
+
+    /* notch */
+    .phone::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 50%; transform: translateX(-50%);
+      width: 130px; height: 32px;
+      background: #000;
+      border-radius: 0 0 20px 20px;
+      z-index: 100;
+    }
+
+    /* ── Status bar ── */
+    .status-bar {
+      position: absolute; top: 0; left: 0; right: 0;
+      height: 44px;
+      display: flex; align-items: flex-end; justify-content: space-between;
+      padding: 0 22px 6px;
+      font-size: 12px; font-weight: 600;
+      z-index: 90;
+    }
+    .status-bar .time { color: var(--text); }
+    .status-bar .icons { display: flex; gap: 5px; align-items: center; color: var(--text); font-size: 12px; }
+
+    /* ── Screen container ── */
+    .screen {
+      display: none;
+      position: absolute;
+      inset: 0;
+      padding-top: 44px;
+      padding-bottom: 72px;
+      overflow-y: auto;
+      flex-direction: column;
+    }
+    .screen.active { display: flex; }
+
+    /* ── Bottom nav ── */
+    .bottom-nav {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 72px;
+      background: rgba(10,15,30,0.95);
+      border-top: 1px solid var(--border);
+      backdrop-filter: blur(12px);
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      z-index: 80;
+      padding-bottom: 8px;
+    }
+    .nav-item {
+      display: flex; flex-direction: column; align-items: center; gap: 3px;
+      cursor: pointer;
+      padding: 6px 10px;
+      border-radius: 10px;
+      transition: all .2s;
+      flex: 1;
+    }
+    .nav-item:hover { background: var(--card); }
+    .nav-item.active .nav-icon { color: var(--accent); }
+    .nav-item.active .nav-label { color: var(--accent); }
+    .nav-icon  { font-size: 22px; }
+    .nav-label { font-size: 10px; color: var(--muted); font-weight: 500; }
+
+    /* ═══════════════════════════════════════
+       SCREEN 1 — HOME
+    ═══════════════════════════════════════ */
+    .home-header {
+      padding: 16px 22px 12px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .home-header .greeting { font-size: 13px; color: var(--muted); }
+    .home-header .app-name { font-size: 22px; font-weight: 800; }
+    .home-header .avatar   { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg,var(--accent),var(--accent2)); display: flex; align-items: center; justify-content: center; font-size: 16px; }
+
+    .sky-quality-card {
+      margin: 0 16px 14px;
+      background: linear-gradient(135deg, rgba(79,142,247,0.15), rgba(155,89,182,0.10));
+      border: 1px solid rgba(79,142,247,0.25);
+      border-radius: 20px;
+      padding: 20px 20px;
+      position: relative;
+      overflow: hidden;
+    }
+    .sky-quality-card::before {
+      content: '🌌';
+      position: absolute;
+      right: 16px; top: 50%; transform: translateY(-50%);
+      font-size: 48px;
+      opacity: 0.3;
+    }
+    .sq-label  { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+    .sq-value  { font-size: 32px; font-weight: 800; color: var(--accent); }
+    .sq-text   { font-size: 12px; color: var(--muted); margin-top: 2px; }
+    .sq-meta   { display: flex; gap: 12px; margin-top: 12px; }
+    .sq-meta span { font-size: 11px; color: var(--muted); background: var(--card); padding: 3px 8px; border-radius: 6px; }
+
+    .section-title { font-size: 14px; font-weight: 700; padding: 0 20px 10px; color: var(--text); }
+
+    .iss-card {
+      margin: 0 16px 14px;
+      background: linear-gradient(135deg, rgba(245,197,24,0.10), rgba(239,68,68,0.07));
+      border: 1px solid rgba(245,197,24,0.25);
+      border-radius: 16px;
+      padding: 16px 18px;
+      display: flex; align-items: center; gap: 14px;
+    }
+    .iss-icon { font-size: 28px; }
+    .iss-info .label { font-size: 11px; color: var(--muted); font-weight: 600; letter-spacing: 0.8px; text-transform: uppercase; }
+    .iss-info .countdown { font-size: 22px; font-weight: 800; color: var(--gold); }
+    .iss-info .sub { font-size: 11px; color: var(--muted); }
+    .iss-btn {
+      margin-left: auto;
+      background: rgba(245,197,24,0.15);
+      border: 1px solid rgba(245,197,24,0.3);
+      color: var(--gold);
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 0 16px 14px;
+    }
+    .qa-btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 16px 14px;
+      cursor: pointer;
+      display: flex; align-items: center; gap: 10px;
+      transition: all .2s;
+    }
+    .qa-btn:hover { border-color: rgba(79,142,247,0.4); background: rgba(79,142,247,0.07); }
+    .qa-btn .qa-icon { font-size: 24px; }
+    .qa-btn .qa-text h4 { font-size: 13px; font-weight: 600; }
+    .qa-btn .qa-text p  { font-size: 11px; color: var(--muted); }
+
+    .sat-mini-list { padding: 0 16px 10px; display: flex; flex-direction: column; gap: 8px; }
+    .sat-mini-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 11px 14px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .sat-mini-item .dot-green  { width: 7px; height: 7px; border-radius: 50%; background: var(--green); box-shadow: 0 0 6px var(--green); flex-shrink: 0; }
+    .sat-mini-item .sat-name   { font-size: 13px; font-weight: 600; flex: 1; }
+    .sat-mini-item .sat-alt    { font-size: 11px; color: var(--muted); }
+    .sat-mini-item .sat-badge  { font-size: 10px; padding: 2px 7px; border-radius: 5px; background: rgba(34,197,94,0.12); color: var(--green); font-weight: 600; }
+
+    /* ═══════════════════════════════════════
+       SCREEN 2 — AR
+    ═══════════════════════════════════════ */
+    .ar-screen {
+      background: #000;
+      position: relative;
+      flex: 1;
+    }
+    .ar-sky {
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at 40% 30%, #0d1b3e 0%, #020408 60%);
+      overflow: hidden;
+    }
+
+    /* Stars on AR */
+    .ar-star {
+      position: absolute;
+      background: #fff;
+      border-radius: 50%;
+    }
+
+    /* Satellite label */
+    .ar-label {
+      position: absolute;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 4px;
+      cursor: pointer;
+    }
+    .ar-label .marker {
+      width: 12px; height: 12px;
+      border: 2px solid;
+      border-radius: 50%;
+      position: relative;
+    }
+    .ar-label .marker::after {
+      content: '';
+      position: absolute;
+      inset: -6px;
+      border: 1px solid;
+      border-radius: 50%;
+      opacity: 0.3;
+    }
+    .ar-label.sat .marker  { border-color: var(--accent); }
+    .ar-label.sat .marker::after { border-color: var(--accent); }
+    .ar-label.star .marker { border-color: var(--gold); background: rgba(245,197,24,0.3); }
+    .ar-label.star .marker::after { border-color: var(--gold); }
+    .ar-label .info-box {
+      background: rgba(10,15,30,0.85);
+      border: 1px solid;
+      border-radius: 8px;
+      padding: 5px 9px;
+      backdrop-filter: blur(6px);
+    }
+    .ar-label.sat  .info-box { border-color: rgba(79,142,247,0.4); }
+    .ar-label.star .info-box { border-color: rgba(245,197,24,0.4); }
+    .ar-label .info-box .name { font-size: 11px; font-weight: 700; }
+    .ar-label.sat  .info-box .name { color: var(--accent); }
+    .ar-label.star .info-box .name { color: var(--gold); }
+    .ar-label .info-box .sub { font-size: 10px; color: var(--muted); }
+
+    /* AR horizon line */
+    .horizon-line {
+      position: absolute;
+      bottom: 30%;
+      left: 0; right: 0;
+      height: 1px;
+      background: rgba(255,255,255,0.08);
+    }
+    .horizon-label {
+      position: absolute;
+      right: 12px; bottom: 30%;
+      transform: translateY(12px);
+      font-size: 10px;
+      color: rgba(255,255,255,0.25);
+    }
+
+    /* AR UI overlays */
+    .ar-top-bar {
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      padding: 14px 18px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: linear-gradient(to bottom, rgba(0,0,0,0.6), transparent);
+      z-index: 10;
+    }
+    .ar-top-bar .ar-badge {
+      background: rgba(239,68,68,0.8);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 800;
+      letter-spacing: 1px;
+      padding: 3px 8px;
+      border-radius: 5px;
+    }
+    .ar-top-bar .compass { font-size: 13px; color: rgba(255,255,255,0.6); flex: 1; text-align: center; letter-spacing: 3px; }
+    .ar-top-bar .filters { font-size: 13px; color: rgba(255,255,255,0.6); cursor: pointer; }
+
+    .ar-bottom-panel {
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+      padding: 20px 18px 16px;
+      z-index: 10;
+    }
+    .ar-filter-chips { display: flex; gap: 7px; margin-bottom: 14px; flex-wrap: wrap; }
+    .ar-chip {
+      padding: 5px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      border: 1px solid;
+      cursor: pointer;
+    }
+    .ar-chip.on  { background: rgba(79,142,247,0.25); border-color: rgba(79,142,247,0.5); color: var(--accent); }
+    .ar-chip.off { background: rgba(255,255,255,0.05); border-color: rgba(255,255,255,0.1); color: var(--muted); }
+
+    .ar-selected {
+      background: rgba(10,15,30,0.9);
+      border: 1px solid rgba(79,142,247,0.3);
+      border-radius: 14px;
+      padding: 12px 14px;
+      backdrop-filter: blur(10px);
+    }
+    .ar-selected .name { font-size: 15px; font-weight: 700; color: var(--accent); }
+    .ar-selected .meta { display: flex; gap: 14px; margin-top: 6px; flex-wrap: wrap; }
+    .ar-selected .meta span { font-size: 11px; color: var(--muted); }
+    .ar-selected .meta strong { color: var(--text); }
+
+    /* ═══════════════════════════════════════
+       SCREEN 3 — MAP
+    ═══════════════════════════════════════ */
+    .map-screen { flex: 1; display: flex; flex-direction: column; }
+    .map-header {
+      padding: 14px 18px 10px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .map-header h2 { font-size: 18px; font-weight: 800; }
+    .map-header .map-stats { font-size: 11px; color: var(--muted); }
+
+    .map-canvas {
+      margin: 0 14px 10px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: #0d1929;
+      height: 240px;
+      position: relative;
+      overflow: hidden;
+    }
+    /* Fake map grid */
+    .map-canvas::before {
+      content: '';
+      position: absolute; inset: 0;
+      background-image:
+        linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+      background-size: 40px 40px;
+    }
+    /* Land masses (simplified blobs) */
+    .land {
+      position: absolute;
+      background: rgba(255,255,255,0.04);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 40%;
+    }
+    .sat-dot {
+      position: absolute;
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent);
+      cursor: pointer;
+      transition: transform .2s;
+    }
+    .sat-dot:hover { transform: scale(1.8); }
+    .sat-dot.iss { background: var(--gold); box-shadow: 0 0 10px var(--gold); width: 10px; height: 10px; }
+    .sat-dot.hubble { background: #C084FC; box-shadow: 0 0 8px #C084FC; }
+    .observer-dot {
+      position: absolute;
+      width: 12px; height: 12px;
+      background: var(--green);
+      border-radius: 50%;
+      border: 2px solid rgba(34,197,94,0.5);
+      box-shadow: 0 0 0 4px rgba(34,197,94,0.15), 0 0 12px var(--green);
+    }
+    .map-legend {
+      padding: 0 14px 8px;
+      display: flex; gap: 12px; flex-wrap: wrap;
+    }
+    .legend-item { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); }
+    .legend-dot  { width: 8px; height: 8px; border-radius: 50%; }
+
+    .sat-list-header {
+      padding: 8px 18px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .sat-list-header h3 { font-size: 13px; font-weight: 700; }
+    .count-badge {
+      background: rgba(79,142,247,0.15);
+      color: var(--accent);
+      border-radius: 12px;
+      padding: 2px 8px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+    .sat-list { padding: 0 14px; display: flex; flex-direction: column; gap: 7px; overflow-y: auto; max-height: 220px; }
+    .sat-row {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 10px 12px;
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .sat-row:hover { border-color: rgba(79,142,247,0.3); }
+    .sat-row .dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+    .sat-row .name { font-size: 13px; font-weight: 600; flex: 1; }
+    .sat-row .alt  { font-size: 11px; color: var(--muted); }
+    .sat-row .elev { font-size: 10px; padding: 2px 6px; border-radius: 5px; background: rgba(34,197,94,0.1); color: var(--green); font-weight: 700; }
+
+    /* ═══════════════════════════════════════
+       SCREEN 4 — ISS DETAIL
+    ═══════════════════════════════════════ */
+    .iss-detail-header {
+      padding: 16px 20px 12px;
+      display: flex; align-items: center; gap: 12px;
+    }
+    .back-btn { font-size: 18px; cursor: pointer; color: var(--muted); }
+    .iss-detail-header h2 { font-size: 20px; font-weight: 800; }
+    .iss-status-badge {
+      margin-left: auto;
+      background: rgba(34,197,94,0.12);
+      border: 1px solid rgba(34,197,94,0.3);
+      color: var(--green);
+      font-size: 11px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 8px;
+    }
+
+    .iss-vis-card {
+      margin: 0 16px 14px;
+      background: linear-gradient(135deg, rgba(245,197,24,0.08), rgba(239,68,68,0.05));
+      border: 1px solid rgba(245,197,24,0.2);
+      border-radius: 18px;
+      padding: 18px;
+      text-align: center;
+    }
+    .iss-big-icon { font-size: 52px; margin-bottom: 8px; }
+    .iss-pass-time { font-size: 24px; font-weight: 800; color: var(--gold); }
+    .iss-pass-sub  { font-size: 12px; color: var(--muted); margin-top: 3px; }
+
+    .orbit-data-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 0 16px 14px;
+    }
+    .orbit-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 14px;
+      text-align: center;
+    }
+    .orbit-card .icon   { font-size: 20px; margin-bottom: 4px; }
+    .orbit-card .value  { font-size: 18px; font-weight: 800; }
+    .orbit-card .unit   { font-size: 10px; color: var(--muted); }
+    .orbit-card .label  { font-size: 11px; color: var(--muted); margin-top: 2px; }
+
+    .look-angles {
+      margin: 0 16px 14px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .look-angles h4 { font-size: 13px; font-weight: 700; margin-bottom: 12px; }
+    .angle-row { display: flex; justify-content: space-between; margin-bottom: 8px; }
+    .angle-row .key  { font-size: 12px; color: var(--muted); }
+    .angle-row .val  { font-size: 12px; font-weight: 600; }
+    .angle-row .bar-wrap { flex: 1; margin: 0 10px; display: flex; align-items: center; }
+    .angle-row .bar-track { width: 100%; height: 4px; background: rgba(255,255,255,0.07); border-radius: 2px; overflow: hidden; }
+    .angle-row .bar-fill { height: 100%; border-radius: 2px; background: linear-gradient(90deg, var(--accent), var(--accent2)); }
+
+    .iss-cta-btn {
+      margin: 0 16px 10px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      border: none;
+      border-radius: 14px;
+      padding: 15px;
+      color: #fff;
+      font-size: 14px;
+      font-weight: 700;
+      cursor: pointer;
+      width: calc(100% - 32px);
+      text-align: center;
+      box-shadow: 0 4px 20px rgba(79,142,247,0.3);
+    }
+
+    /* ═══════════════════════════════════════
+       SCREEN 5 — NOTIFICATIONS
+    ═══════════════════════════════════════ */
+    .notif-header {
+      padding: 16px 20px 12px;
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .notif-header h2 { font-size: 20px; font-weight: 800; }
+    .notif-header .clear-btn { font-size: 12px; color: var(--accent); cursor: pointer; }
+
+    .notif-list { padding: 0 16px; display: flex; flex-direction: column; gap: 10px; }
+    .notif-item {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 14px;
+      display: flex; gap: 12px;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .notif-item:hover { border-color: rgba(79,142,247,0.3); }
+    .notif-item.unread { border-color: rgba(79,142,247,0.25); background: rgba(79,142,247,0.05); }
+    .notif-icon { font-size: 24px; flex-shrink: 0; margin-top: 2px; }
+    .notif-body .title { font-size: 13px; font-weight: 700; margin-bottom: 3px; }
+    .notif-body .desc  { font-size: 12px; color: var(--muted); line-height: 1.4; }
+    .notif-body .time  { font-size: 11px; color: var(--muted); margin-top: 5px; }
+    .unread-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      flex-shrink: 0;
+      margin-top: 6px;
+      box-shadow: 0 0 6px var(--accent);
+    }
+
+    .notif-settings {
+      margin: 14px 16px 0;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    .setting-row {
+      display: flex; align-items: center; gap: 12px;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--border);
+    }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-row .setting-icon { font-size: 20px; }
+    .setting-row .setting-text h4 { font-size: 13px; font-weight: 600; }
+    .setting-row .setting-text p  { font-size: 11px; color: var(--muted); }
+    .toggle {
+      margin-left: auto;
+      width: 44px; height: 24px;
+      background: var(--accent);
+      border-radius: 12px;
+      position: relative;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+    .toggle::after {
+      content: '';
+      position: absolute;
+      top: 2px; right: 2px;
+      width: 20px; height: 20px;
+      background: #fff;
+      border-radius: 50%;
+      transition: right .2s;
+    }
+    .toggle.off { background: rgba(255,255,255,0.12); }
+    .toggle.off::after { right: auto; left: 2px; }
+  </style>
+</head>
+<body>
+<div class="page-wrapper">
+
+  <a href="pitch-deck.html" class="back-link">← Retour au pitch deck</a>
+
+  <div class="page-title">
+    <h1>🔭 Gix — Prototype Interactif</h1>
+    <p>Naviguez entre les écrans pour explorer l'expérience utilisateur de l'application</p>
+  </div>
+
+  <!-- Screen tabs -->
+  <div class="tabs">
+    <div class="tab active" data-screen="home">🏠 Accueil</div>
+    <div class="tab" data-screen="ar">📷 Vue AR</div>
+    <div class="tab" data-screen="map">🗺️ Carte</div>
+    <div class="tab" data-screen="iss">🛸 ISS Detail</div>
+    <div class="tab" data-screen="notif">🔔 Alertes</div>
+  </div>
+
+  <!-- Phone frame -->
+  <div class="phone-stage">
+    <div class="phone">
+
+      <!-- Status bar -->
+      <div class="status-bar">
+        <span class="time">21:47</span>
+        <div class="icons">
+          <span>●●●</span>
+          <span>WiFi</span>
+          <span>🔋</span>
+        </div>
+      </div>
+
+      <!-- ── SCREEN: HOME ── -->
+      <div class="screen active" id="screen-home">
+        <div class="home-header">
+          <div>
+            <div class="greeting">Bonsoir, observateur 👋</div>
+            <div class="app-name">Gix 🔭</div>
+          </div>
+          <div class="avatar">👨‍🚀</div>
+        </div>
+
+        <div class="sky-quality-card">
+          <div class="sq-label">Qualité du ciel ce soir</div>
+          <div class="sq-value">7.2 / 10</div>
+          <div class="sq-text">Bonne visibilité · Faible nébulosité</div>
+          <div class="sq-meta">
+            <span>🌙 Lune 12%</span>
+            <span>💨 Vent 8 km/h</span>
+            <span>☁️ Nuages 15%</span>
+          </div>
+        </div>
+
+        <div class="section-title">🛸 Prochain passage ISS</div>
+        <div class="iss-card">
+          <div class="iss-icon">🛸</div>
+          <div class="iss-info">
+            <div class="label">Dans</div>
+            <div class="countdown">14 min</div>
+            <div class="sub">Élévation max 68° · Direction NNO→SSE</div>
+          </div>
+          <div class="iss-btn" onclick="switchScreen('iss')">Détails →</div>
+        </div>
+
+        <div class="section-title">⚡ Actions rapides</div>
+        <div class="quick-actions">
+          <div class="qa-btn" onclick="switchScreen('ar')">
+            <div class="qa-icon">📷</div>
+            <div class="qa-text"><h4>Vue AR</h4><p>Pointer le ciel</p></div>
+          </div>
+          <div class="qa-btn" onclick="switchScreen('map')">
+            <div class="qa-icon">🗺️</div>
+            <div class="qa-text"><h4>Carte</h4><p>Satellites live</p></div>
+          </div>
+          <div class="qa-btn" onclick="switchScreen('notif')">
+            <div class="qa-icon">🔔</div>
+            <div class="qa-text"><h4>Alertes</h4><p>3 nouvelles</p></div>
+          </div>
+          <div class="qa-btn">
+            <div class="qa-icon">⭐</div>
+            <div class="qa-text"><h4>Étoiles</h4><p>Catalogue HYG</p></div>
+          </div>
+        </div>
+
+        <div class="section-title">🛰️ Satellites au-dessus de vous</div>
+        <div class="sat-mini-list">
+          <div class="sat-mini-item">
+            <div class="dot-green"></div>
+            <div class="sat-name">ISS (ZARYA)</div>
+            <div class="sat-alt">Alt. 423 km</div>
+            <div class="sat-badge">+68°</div>
+          </div>
+          <div class="sat-mini-item">
+            <div class="dot-green"></div>
+            <div class="sat-name">STARLINK-3421</div>
+            <div class="sat-alt">Alt. 560 km</div>
+            <div class="sat-badge">+32°</div>
+          </div>
+          <div class="sat-mini-item">
+            <div class="dot-green"></div>
+            <div class="sat-name">NOAA 19</div>
+            <div class="sat-alt">Alt. 870 km</div>
+            <div class="sat-badge">+15°</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SCREEN: AR ── -->
+      <div class="screen" id="screen-ar" style="padding:0; flex-direction:column;">
+        <div class="ar-sky">
+          <!-- Static stars -->
+          <div class="ar-star" style="width:2px;height:2px;top:12%;left:8%;opacity:0.9;"></div>
+          <div class="ar-star" style="width:3px;height:3px;top:8%;left:22%;opacity:0.8;"></div>
+          <div class="ar-star" style="width:1px;height:1px;top:15%;left:40%;opacity:0.7;"></div>
+          <div class="ar-star" style="width:2px;height:2px;top:6%;left:58%;opacity:0.9;"></div>
+          <div class="ar-star" style="width:2px;height:2px;top:19%;left:72%;opacity:0.6;"></div>
+          <div class="ar-star" style="width:3px;height:3px;top:10%;left:85%;opacity:0.8;"></div>
+          <div class="ar-star" style="width:1px;height:1px;top:25%;left:15%;opacity:0.7;"></div>
+          <div class="ar-star" style="width:2px;height:2px;top:30%;left:30%;opacity:0.5;"></div>
+          <div class="ar-star" style="width:2px;height:2px;top:22%;left:50%;opacity:0.8;"></div>
+          <div class="ar-star" style="width:1px;height:1px;top:35%;left:65%;opacity:0.6;"></div>
+          <div class="ar-star" style="width:3px;height:3px;top:28%;left:80%;opacity:0.9;"></div>
+          <div class="ar-star" style="width:2px;height:2px;top:42%;left:10%;opacity:0.4;"></div>
+          <div class="ar-star" style="width:1px;height:1px;top:45%;left:45%;opacity:0.5;"></div>
+          <div class="ar-star" style="width:2px;height:2px;top:40%;left:90%;opacity:0.7;"></div>
+          <div class="ar-star" style="width:4px;height:4px;top:18%;left:35%;opacity:1; box-shadow:0 0 6px #FFE680;background:#FFE680;"></div>
+          <div class="ar-star" style="width:3px;height:3px;top:32%;left:55%;opacity:0.9; box-shadow:0 0 4px #CCE5FF;background:#CCE5FF;"></div>
+
+          <!-- Satellite labels -->
+          <div class="ar-label sat" style="top:20%;left:55%;">
+            <div class="marker"></div>
+            <div class="info-box">
+              <div class="name">ISS</div>
+              <div class="sub">68° · 423 km</div>
+            </div>
+          </div>
+          <div class="ar-label sat" style="top:35%;left:25%;">
+            <div class="marker"></div>
+            <div class="info-box">
+              <div class="name">STARLINK-3421</div>
+              <div class="sub">32° · 560 km</div>
+            </div>
+          </div>
+          <div class="ar-label star" style="top:15%;left:35%;">
+            <div class="marker"></div>
+            <div class="info-box">
+              <div class="name">Sirius (α CMa)</div>
+              <div class="sub">mag −1.46</div>
+            </div>
+          </div>
+          <div class="ar-label star" style="top:28%;left:72%;">
+            <div class="marker"></div>
+            <div class="info-box">
+              <div class="name">Bételgeuse</div>
+              <div class="sub">mag 0.42</div>
+            </div>
+          </div>
+
+          <div class="horizon-line"></div>
+          <div class="horizon-label">Horizon</div>
+
+          <div class="ar-top-bar">
+            <div class="ar-badge">AR LIVE</div>
+            <div class="compass">N · NNE · NE · ENE · E</div>
+            <div class="filters">⚙</div>
+          </div>
+
+          <div class="ar-bottom-panel">
+            <div class="ar-filter-chips">
+              <div class="ar-chip on">🛰 Satellites</div>
+              <div class="ar-chip on">⭐ Étoiles</div>
+              <div class="ar-chip off">✨ Constellations</div>
+              <div class="ar-chip off">🪐 Planètes</div>
+            </div>
+            <div class="ar-selected">
+              <div class="name">ISS (ZARYA)</div>
+              <div class="meta">
+                <span>Alt. <strong>423 km</strong></span>
+                <span>Vitesse <strong>27 600 km/h</strong></span>
+                <span>Élév. <strong>68°</strong></span>
+                <span>Azimut <strong>312°</strong></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SCREEN: MAP ── -->
+      <div class="screen" id="screen-map">
+        <div class="map-header">
+          <h2>Carte Mondiale</h2>
+          <div class="map-stats">🛰 127 satellites</div>
+        </div>
+
+        <div class="map-canvas">
+          <!-- Simplified land masses -->
+          <div class="land" style="width:90px;height:60px;top:30%;left:10%;"></div>
+          <div class="land" style="width:70px;height:50px;top:25%;left:28%;"></div>
+          <div class="land" style="width:100px;height:65px;top:28%;left:45%;"></div>
+          <div class="land" style="width:60px;height:70px;top:30%;left:70%;"></div>
+          <div class="land" style="width:55px;height:45px;top:55%;left:20%;"></div>
+          <div class="land" style="width:40px;height:40px;top:52%;left:55%;"></div>
+          <!-- Satellite dots -->
+          <div class="sat-dot iss" style="top:38%;left:52%;" title="ISS"></div>
+          <div class="sat-dot hubble" style="top:22%;left:32%;" title="Hubble"></div>
+          <div class="sat-dot" style="top:18%;left:15%;"></div>
+          <div class="sat-dot" style="top:30%;left:68%;"></div>
+          <div class="sat-dot" style="top:55%;left:40%;"></div>
+          <div class="sat-dot" style="top:62%;left:75%;"></div>
+          <div class="sat-dot" style="top:42%;left:82%;"></div>
+          <div class="sat-dot" style="top:15%;left:58%;"></div>
+          <div class="sat-dot" style="top:72%;left:22%;"></div>
+          <div class="sat-dot" style="top:25%;left:88%;"></div>
+          <!-- Observer (Paris) -->
+          <div class="observer-dot" style="top:33%;left:38%;"></div>
+        </div>
+
+        <div class="map-legend">
+          <div class="legend-item"><div class="legend-dot" style="background:var(--accent);box-shadow:0 0 4px var(--accent);"></div> Satellite</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--gold);box-shadow:0 0 4px var(--gold);"></div> ISS</div>
+          <div class="legend-item"><div class="legend-dot" style="background:#C084FC;box-shadow:0 0 4px #C084FC;"></div> Hubble</div>
+          <div class="legend-item"><div class="legend-dot" style="background:var(--green);box-shadow:0 0 4px var(--green);"></div> Vous</div>
+        </div>
+
+        <div class="sat-list-header">
+          <h3>Satellites visibles</h3>
+          <span class="count-badge">12</span>
+        </div>
+        <div class="sat-list">
+          <div class="sat-row" onclick="switchScreen('iss')">
+            <div class="dot" style="background:var(--gold);box-shadow:0 0 6px var(--gold);"></div>
+            <div class="name">ISS (ZARYA)</div>
+            <div class="alt">423 km</div>
+            <div class="elev">+68°</div>
+          </div>
+          <div class="sat-row">
+            <div class="dot" style="background:#C084FC;box-shadow:0 0 6px #C084FC;"></div>
+            <div class="name">Hubble (HST)</div>
+            <div class="alt">537 km</div>
+            <div class="elev">+45°</div>
+          </div>
+          <div class="sat-row">
+            <div class="dot" style="background:var(--accent);box-shadow:0 0 6px var(--accent);"></div>
+            <div class="name">STARLINK-3421</div>
+            <div class="alt">560 km</div>
+            <div class="elev">+32°</div>
+          </div>
+          <div class="sat-row">
+            <div class="dot" style="background:var(--accent);box-shadow:0 0 6px var(--accent);"></div>
+            <div class="name">NOAA 19</div>
+            <div class="alt">870 km</div>
+            <div class="elev">+15°</div>
+          </div>
+          <div class="sat-row">
+            <div class="dot" style="background:var(--accent);box-shadow:0 0 6px var(--accent);"></div>
+            <div class="name">TERRA (EOS AM-1)</div>
+            <div class="alt">705 km</div>
+            <div class="elev">+9°</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── SCREEN: ISS DETAIL ── -->
+      <div class="screen" id="screen-iss">
+        <div class="iss-detail-header">
+          <div class="back-btn" onclick="switchScreen('home')">←</div>
+          <h2>🛸 ISS</h2>
+          <div class="iss-status-badge">● EN ORBITE</div>
+        </div>
+
+        <div class="iss-vis-card">
+          <div class="iss-big-icon">🛸</div>
+          <div class="iss-pass-time">Dans 14 min 22s</div>
+          <div class="iss-pass-sub">Prochain passage · Élév. max 68° · Durée ~6 min</div>
+        </div>
+
+        <div class="orbit-data-grid">
+          <div class="orbit-card">
+            <div class="icon">🏔️</div>
+            <div class="value">423</div>
+            <div class="unit">km</div>
+            <div class="label">Altitude</div>
+          </div>
+          <div class="orbit-card">
+            <div class="icon">⚡</div>
+            <div class="value">27 600</div>
+            <div class="unit">km/h</div>
+            <div class="label">Vitesse</div>
+          </div>
+          <div class="orbit-card">
+            <div class="icon">📐</div>
+            <div class="value">51.6°</div>
+            <div class="unit"></div>
+            <div class="label">Inclinaison</div>
+          </div>
+          <div class="orbit-card">
+            <div class="icon">🔄</div>
+            <div class="value">92.7</div>
+            <div class="unit">min</div>
+            <div class="label">Période orbitale</div>
+          </div>
+        </div>
+
+        <div class="look-angles">
+          <h4>Angles de visée depuis Paris</h4>
+          <div class="angle-row">
+            <span class="key">Élévation</span>
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:68%"></div></div></div>
+            <span class="val">68°</span>
+          </div>
+          <div class="angle-row">
+            <span class="key">Azimut</span>
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:87%"></div></div></div>
+            <span class="val">312°</span>
+          </div>
+          <div class="angle-row">
+            <span class="key">Portée</span>
+            <div class="bar-wrap"><div class="bar-track"><div class="bar-fill" style="width:45%"></div></div></div>
+            <span class="val">453 km</span>
+          </div>
+        </div>
+
+        <button class="iss-cta-btn" onclick="switchScreen('ar')">📷 Voir la trajectoire en AR</button>
+      </div>
+
+      <!-- ── SCREEN: NOTIFICATIONS ── -->
+      <div class="screen" id="screen-notif">
+        <div class="notif-header">
+          <h2>🔔 Alertes</h2>
+          <span class="clear-btn">Tout marquer lu</span>
+        </div>
+
+        <div class="notif-list">
+          <div class="notif-item unread">
+            <div class="notif-icon">🛸</div>
+            <div class="notif-body">
+              <div class="title">ISS visible dans 14 minutes !</div>
+              <div class="desc">Passage à 68° d'élévation max. Direction NNO → SSE. Durée ~6 min. Magnitude −3.7.</div>
+              <div class="time">Il y a 2 min</div>
+            </div>
+            <div class="unread-dot"></div>
+          </div>
+          <div class="notif-item unread">
+            <div class="notif-icon">☄️</div>
+            <div class="notif-body">
+              <div class="title">Pluie de météores Perséides</div>
+              <div class="desc">Pic d'activité cette nuit. Jusqu'à 100 météores/heure. Meilleure fenêtre : 01h00 – 04h00.</div>
+              <div class="time">Il y a 45 min</div>
+            </div>
+            <div class="unread-dot"></div>
+          </div>
+          <div class="notif-item unread">
+            <div class="notif-icon">🔭</div>
+            <div class="notif-body">
+              <div class="title">Hubble visible ce soir</div>
+              <div class="desc">Passage à 45° d'élévation à 22h34. Luminosité 3.2. Utilisez la Vue AR pour le localiser.</div>
+              <div class="time">Il y a 1h</div>
+            </div>
+            <div class="unread-dot"></div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-icon">🌙</div>
+            <div class="notif-body">
+              <div class="title">Pleine lune demain soir</div>
+              <div class="desc">La lune sera à 100% de visibilité. Qualité d'observation des étoiles réduite.</div>
+              <div class="time">Hier 18h22</div>
+            </div>
+          </div>
+          <div class="notif-item">
+            <div class="notif-icon">🪐</div>
+            <div class="notif-body">
+              <div class="title">Jupiter en opposition</div>
+              <div class="desc">Jupiter est à sa position la plus brillante de l'année. Visible toute la nuit à l'œil nu.</div>
+              <div class="time">Il y a 2 jours</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="notif-settings">
+          <div class="setting-row">
+            <div class="setting-icon">🛸</div>
+            <div class="setting-text"><h4>Passages ISS</h4><p>15 min avant chaque passage</p></div>
+            <div class="toggle"></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-icon">☄️</div>
+            <div class="setting-text"><h4>Événements astronomiques</h4><p>Météores, éclipses, conjonctions</p></div>
+            <div class="toggle"></div>
+          </div>
+          <div class="setting-row">
+            <div class="setting-icon">🌤️</div>
+            <div class="setting-text"><h4>Météo nocturne</h4><p>Prévisions pour l'observation</p></div>
+            <div class="toggle off"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom nav -->
+      <div class="bottom-nav">
+        <div class="nav-item active" id="nav-home" onclick="switchScreen('home')">
+          <div class="nav-icon">🏠</div>
+          <div class="nav-label">Accueil</div>
+        </div>
+        <div class="nav-item" id="nav-ar" onclick="switchScreen('ar')">
+          <div class="nav-icon">📷</div>
+          <div class="nav-label">Vue AR</div>
+        </div>
+        <div class="nav-item" id="nav-map" onclick="switchScreen('map')">
+          <div class="nav-icon">🗺️</div>
+          <div class="nav-label">Carte</div>
+        </div>
+        <div class="nav-item" id="nav-iss" onclick="switchScreen('iss')">
+          <div class="nav-icon">🛸</div>
+          <div class="nav-label">ISS</div>
+        </div>
+        <div class="nav-item" id="nav-notif" onclick="switchScreen('notif')">
+          <div class="nav-icon">🔔</div>
+          <div class="nav-label">Alertes</div>
+        </div>
+      </div>
+
+    </div><!-- /phone -->
+  </div><!-- /phone-stage -->
+
+</div><!-- /page-wrapper -->
+
+<script>
+  function switchScreen(name) {
+    // Hide all screens
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+
+    // Show selected
+    const screen = document.getElementById('screen-' + name);
+    if (screen) screen.classList.add('active');
+
+    const navItem = document.getElementById('nav-' + name);
+    if (navItem) navItem.classList.add('active');
+
+    const tab = document.querySelector('.tab[data-screen="' + name + '"]');
+    if (tab) tab.classList.add('active');
+  }
+
+  // Tab click handler
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      const screen = tab.getAttribute('data-screen');
+      switchScreen(screen);
+    });
+  });
+
+  // ISS countdown animation (initial value: 14 minutes 22 seconds before next pass)
+  const INITIAL_COUNTDOWN_SECONDS = 14 * 60 + 22;
+  let seconds = INITIAL_COUNTDOWN_SECONDS;
+  setInterval(() => {
+    if (seconds > 0) seconds--;
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    const formatted = mins + ' min ' + String(secs).padStart(2, '0') + 's';
+    document.querySelectorAll('.iss-pass-time').forEach(el => el.textContent = 'Dans ' + formatted);
+    document.querySelectorAll('.countdown').forEach(el => el.textContent = mins + ' min');
+  }, 1000);
+
+  // Clock update
+  function updateClock() {
+    const now = new Date();
+    const h = String(now.getHours()).padStart(2, '0');
+    const m = String(now.getMinutes()).padStart(2, '0');
+    document.querySelector('.status-bar .time').textContent = h + ':' + m;
+  }
+  updateClock();
+  setInterval(updateClock, 10000);
+</script>
+</body>
+</html>
