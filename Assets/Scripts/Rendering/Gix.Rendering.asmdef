@@ -1,0 +1,19 @@
+{
+    "name": "Gix.Rendering",
+    "rootNamespace": "Gix.Rendering",
+    "references": [
+        "Gix.Core",
+        "Gix.Data",
+        "Gix.Utils",
+        "Gix.Culling"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}

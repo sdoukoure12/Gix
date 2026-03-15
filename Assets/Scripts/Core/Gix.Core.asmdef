@@ -1,0 +1,21 @@
+{
+    "name": "Gix.Core",
+    "rootNamespace": "Gix.Core",
+    "references": [
+        "Gix.Data",
+        "Gix.Utils",
+        "Gix.Culling",
+        "Unity.Burst",
+        "Unity.Collections",
+        "Unity.Mathematics"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
