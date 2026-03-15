@@ -4,6 +4,18 @@
 
 'use strict';
 
+/* ── 0. Configuration Constants ── */
+// TLE data uses epoch day 24020 = January 20 2024.
+// Refresh TLE_DATA from https://celestrak.org/SOCRATES/ every ~2 weeks for accuracy.
+const STARFIELD_COUNT          = 280;
+const DEMO_NOTIFICATION_DELAY_MS = 30_000;
+const DETAIL_MAP_INIT_DELAY_MS   = 120;  // wait for DOM visibility before Leaflet init
+
+// TLE line-2 field indices (0-based after splitting on whitespace)
+const TLE2_INCLINATION_IDX  = 2;
+const TLE2_MEAN_MOTION_IDX  = 7;
+const TLE2_DEFAULT_MEAN_MOTION = 15.5; // rev/day, typical LEO fallback
+
 /* ── 1. State ── */
 const STATE = {
   currentScreen: 'home',
@@ -188,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
   requestNotificationPermission();
 
   // Schedule demo browser notification
-  setTimeout(fireDemoNotification, 30_000);
+  setTimeout(fireDemoNotification, DEMO_NOTIFICATION_DELAY_MS);
 
   // Start position update loop
   updateAllPositions();
@@ -365,12 +377,11 @@ function refreshHomeWidgets() {
 }
 
 function computeNextPassMin(issPos) {
-  // Simplified: ISS completes orbit in ~92 min. Estimate when next overhead.
-  const periodMin = 92;
-  const now = new Date();
-  const minutes = now.getMinutes();
-  // Use position to vary estimate slightly
-  const offset = Math.abs(issPos.lat) / 51.6 * 46; // scale by orbit fraction
+  // Simplified demo estimate only — not a real orbital visibility calculation.
+  // A true pass prediction requires observer lat/lng, elevation angle, and
+  // darkness conditions. Use a service like Heavens-Above for real predictions.
+  const periodMin = 92; // ISS orbital period ≈ 92 min
+  const offset = Math.abs(issPos.lat) / 51.6 * 46;
   return Math.round(10 + (offset % (periodMin / 2)));
 }
 
@@ -438,8 +449,7 @@ function initAR() {
 
 function generateStarfield() {
   STATE.arStars = [];
-  const count = 280;
-  for (let i = 0; i < count; i++) {
+  for (let i = 0; i < STARFIELD_COUNT; i++) {
     STATE.arStars.push({
       x: Math.random(),
       y: Math.random(),
@@ -749,9 +759,10 @@ function refreshDetailScreen(name) {
   document.getElementById('detail-norad').textContent = `NORAD ID: ${data.norad}`;
 
   // Inclination & period from TLE line 2
+  // Note: field parsing is format-dependent; indices match standard TLE spacing.
   const tle2Parts = data.tle2.split(/\s+/);
-  const inc    = parseFloat(tle2Parts[2] || 0).toFixed(2);
-  const mmDeg  = parseFloat(tle2Parts[7] || 15.5);
+  const inc    = parseFloat(tle2Parts[TLE2_INCLINATION_IDX] || 0).toFixed(2);
+  const mmDeg  = parseFloat(tle2Parts[TLE2_MEAN_MOTION_IDX] || TLE2_DEFAULT_MEAN_MOTION);
   const period = (1440 / mmDeg).toFixed(1);
 
   document.getElementById('detail-inc').textContent    = inc;
@@ -801,7 +812,8 @@ function initDetailMap(name) {
   }
 
   const container = document.getElementById('detail-map');
-  // Ensure container is visible before init
+  // Delay init by DETAIL_MAP_INIT_DELAY_MS to ensure the container has
+  // non-zero dimensions after the screen transition completes.
   setTimeout(() => {
     try {
       const map = L.map(container, { zoomControl: false, attributionControl: false });
@@ -828,7 +840,7 @@ function initDetailMap(name) {
     } catch (e) {
       console.warn('[Gix] Detail map init error', e);
     }
-  }, 120);
+  }, DETAIL_MAP_INIT_DELAY_MS);
 }
 
 function toggleFavorite() {
@@ -1004,9 +1016,9 @@ function dismissNotification(id) {
 }
 
 function markNotificationRead(id) {
-  const n = STATE.notifications.find(n => n.id === id);
-  if (n) {
-    n.read = true;
+  const notification = STATE.notifications.find(n => n.id === id);
+  if (notification) {
+    notification.read = true;
     renderNotifications();
   }
 }
