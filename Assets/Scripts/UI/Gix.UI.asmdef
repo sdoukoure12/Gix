@@ -1,0 +1,19 @@
+{
+    "name": "Gix.UI",
+    "rootNamespace": "Gix.UI",
+    "references": [
+        "Gix.Core",
+        "Gix.Data",
+        "Gix.Utils",
+        "Gix.Rendering"
+    ],
+    "includePlatforms": [],
+    "excludePlatforms": [],
+    "allowUnsafeCode": false,
+    "overrideReferences": false,
+    "precompiledReferences": [],
+    "autoReferenced": true,
+    "defineConstraints": [],
+    "versionDefines": [],
+    "noEngineReferences": false
+}
