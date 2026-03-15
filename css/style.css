@@ -1,0 +1,327 @@
+/* ============================================================
+   Gix – Œil Satellites  |  Dark Space Theme
+   ============================================================ */
+
+:root {
+  --bg-primary:    #070c18;
+  --bg-secondary:  #0d1427;
+  --bg-surface:    #12192e;
+  --accent:        #00d4ff;
+  --accent-dim:    rgba(0, 212, 255, 0.15);
+  --accent2:       #7b61ff;
+  --text-primary:  #dce8ff;
+  --text-muted:    #6a82a8;
+  --border:        #1a2640;
+  --sat-ok:        #00ff88;
+  --radius:        8px;
+  --sidebar-w:     270px;
+  --header-h:      52px;
+  --footer-h:      28px;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html, body {
+  height: 100%;
+  font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────── */
+header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  height: var(--header-h);
+  padding: 0 1.25rem;
+  background: var(--bg-secondary);
+  border-bottom: 1px solid var(--border);
+  position: relative;
+  z-index: 1100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  white-space: nowrap;
+}
+.logo-icon { font-size: 1.4rem; }
+.logo h1   {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: -0.01em;
+}
+.logo-sub  { font-size: 0.8rem; color: var(--text-muted); font-weight: 400; margin-left: 0.4rem; }
+
+/* Tabs */
+.tabs {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0 auto;
+}
+.tab {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  padding: 0.35rem 1rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.85rem;
+  transition: border-color 0.2s, color 0.2s, background 0.2s;
+}
+.tab:hover  { border-color: var(--accent); color: var(--text-primary); }
+.tab.active {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg-primary);
+  font-weight: 600;
+}
+
+/* Observer bar */
+.observer-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.82rem;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+#locate-btn {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--accent);
+  width: 30px;
+  height: 30px;
+  border-radius: var(--radius);
+  cursor: pointer;
+  font-size: 0.95rem;
+  transition: background 0.2s, border-color 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+#locate-btn:hover { background: var(--bg-surface); border-color: var(--accent); }
+
+/* ── Main layout ─────────────────────────────────────────── */
+main {
+  display: flex;
+  height: calc(100vh - var(--header-h) - var(--footer-h));
+  position: relative;
+  overflow: hidden;
+}
+
+/* Views */
+.view {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  display: none;
+}
+.view.active { display: flex; }
+
+/* Map */
+#map { width: 100%; height: 100%; }
+
+/* Leaflet dark override */
+.leaflet-container { background: var(--bg-primary) !important; }
+.leaflet-control-zoom a {
+  background: var(--bg-secondary) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border) !important;
+}
+.leaflet-control-zoom a:hover { background: var(--bg-surface) !important; }
+
+/* Sky canvas */
+#sky-canvas { width: 100%; height: 100%; display: block; cursor: crosshair; }
+#sky-info {
+  position: absolute;
+  bottom: 0.75rem;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  background: rgba(7, 12, 24, 0.75);
+  padding: 0.3rem 0.9rem;
+  border-radius: 20px;
+  border: 1px solid var(--border);
+  pointer-events: none;
+}
+#sky-info span { white-space: nowrap; }
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+#sidebar {
+  width: var(--sidebar-w);
+  background: var(--bg-secondary);
+  border-left: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 100;
+}
+.sidebar-header {
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+.sidebar-header h2 { font-size: 0.95rem; font-weight: 600; }
+.badge {
+  font-size: 0.75rem;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 0.15rem 0.55rem;
+  border-radius: 12px;
+  min-width: 2ch;
+  text-align: center;
+}
+
+#satellite-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 0.4rem;
+}
+#satellite-list::-webkit-scrollbar { width: 3px; }
+#satellite-list::-webkit-scrollbar-track { background: transparent; }
+#satellite-list::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+.satellite-item {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.5rem 0.65rem;
+  border-radius: var(--radius);
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: background 0.15s, border-color 0.15s;
+  user-select: none;
+}
+.satellite-item:hover  { background: var(--bg-surface); border-color: var(--border); }
+.satellite-item.active { background: var(--accent-dim); border-color: var(--accent); }
+
+.sat-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.sat-info  { flex: 1; min-width: 0; }
+.sat-name  { font-size: 0.82rem; font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.sat-alt   { font-size: 0.72rem; color: var(--text-muted); margin-top: 1px; }
+.sat-above { font-size: 0.68rem; color: var(--sat-ok); }
+
+/* ── Info panel ──────────────────────────────────────────── */
+#info-panel {
+  position: fixed;
+  bottom: calc(var(--footer-h) + 0.75rem);
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.1rem 1.25rem 1.25rem;
+  min-width: 340px;
+  z-index: 1200;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.6), 0 0 0 1px var(--border);
+}
+#info-panel.hidden { display: none; }
+
+#close-info {
+  position: absolute;
+  top: 0.6rem;
+  right: 0.6rem;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 0.9rem;
+  padding: 0.25rem 0.4rem;
+  border-radius: 4px;
+  transition: background 0.15s, color 0.15s;
+}
+#close-info:hover { background: var(--bg-surface); color: var(--text-primary); }
+
+#info-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 0.85rem;
+  padding-right: 1.5rem;
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+.info-item {
+  background: var(--bg-surface);
+  padding: 0.45rem 0.65rem;
+  border-radius: var(--radius);
+}
+.info-item label {
+  display: block;
+  font-size: 0.65rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 0.2rem;
+}
+.info-item span {
+  font-size: 0.92rem;
+  font-weight: 600;
+  font-family: 'Courier New', monospace;
+  color: var(--text-primary);
+}
+
+/* ── Footer ──────────────────────────────────────────────── */
+#status-bar {
+  height: var(--footer-h);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0 1.25rem;
+  background: var(--bg-secondary);
+  border-top: 1px solid var(--border);
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  z-index: 1000;
+}
+
+/* ── Loading overlay ─────────────────────────────────────── */
+#loading-overlay {
+  position: fixed;
+  inset: 0;
+  background: var(--bg-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  gap: 1rem;
+  transition: opacity 0.5s;
+}
+.spinner {
+  width: 46px;
+  height: 46px;
+  border: 3px solid var(--border);
+  border-top-color: var(--accent);
+  border-radius: 50%;
+  animation: spin 0.85s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.loading-sub { font-size: 0.78rem; color: var(--text-muted); }
+
+/* ── Responsive ──────────────────────────────────────────── */
+@media (max-width: 640px) {
+  #sidebar { display: none; }
+  .logo-sub { display: none; }
+  .observer-bar span { display: none; }
+  #info-panel { min-width: calc(100vw - 2rem); left: 1rem; transform: none; }
+}

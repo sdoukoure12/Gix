@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gix – Œil Satellites</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛰️</text></svg>" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+  <!-- ── Header ──────────────────────────────────────────── -->
+  <header>
+    <div class="logo">
+      <span class="logo-icon">🛰️</span>
+      <h1>Gix <span class="logo-sub">Œil Satellites</span></h1>
+    </div>
+
+    <nav class="tabs" role="tablist" aria-label="Vue principale">
+      <button class="tab active" data-view="map" role="tab" aria-selected="true">
+        🗺️ Carte Mondiale
+      </button>
+      <button class="tab" data-view="sky" role="tab" aria-selected="false">
+        ⭐ Vue Ciel
+      </button>
+    </nav>
+
+    <div class="observer-bar">
+      <span id="observer-label" title="Position de l'observateur">📍 Paris, France</span>
+      <button id="locate-btn" title="Utiliser ma géolocalisation" aria-label="Géolocalisation">
+        📡
+      </button>
+    </div>
+  </header>
+
+  <!-- ── Main ────────────────────────────────────────────── -->
+  <main>
+
+    <!-- Map view -->
+    <section id="map-view" class="view active" role="tabpanel" aria-label="Carte mondiale">
+      <div id="map"></div>
+    </section>
+
+    <!-- Sky view -->
+    <section id="sky-view" class="view" role="tabpanel" aria-label="Vue ciel" hidden>
+      <canvas id="sky-canvas" aria-label="Ciel en temps réel depuis l'observateur"></canvas>
+      <div id="sky-info">
+        <span id="sky-time"></span>
+        <span id="sky-observer"></span>
+        <span id="sky-visible-count"></span>
+      </div>
+    </section>
+
+    <!-- Sidebar -->
+    <aside id="sidebar" aria-label="Liste des satellites">
+      <div class="sidebar-header">
+        <h2>🛰️ Satellites</h2>
+        <span id="satellite-count" class="badge">0</span>
+      </div>
+      <div id="satellite-list" role="list"></div>
+    </aside>
+
+  </main>
+
+  <!-- ── Info panel (floating) ───────────────────────────── -->
+  <aside id="info-panel" class="hidden" aria-label="Détails du satellite">
+    <button id="close-info" aria-label="Fermer">✕</button>
+    <h3 id="info-name"></h3>
+    <div class="info-grid">
+      <div class="info-item">
+        <label>Altitude</label>
+        <span id="info-altitude">—</span>
+      </div>
+      <div class="info-item">
+        <label>Latitude</label>
+        <span id="info-lat">—</span>
+      </div>
+      <div class="info-item">
+        <label>Longitude</label>
+        <span id="info-lon">—</span>
+      </div>
+      <div class="info-item">
+        <label>Vitesse</label>
+        <span id="info-velocity">—</span>
+      </div>
+      <div class="info-item">
+        <label>Inclinaison</label>
+        <span id="info-inclination">—</span>
+      </div>
+      <div class="info-item">
+        <label>Période orbitale</label>
+        <span id="info-period">—</span>
+      </div>
+      <div class="info-item">
+        <label>Élévation (obs.)</label>
+        <span id="info-elevation">—</span>
+      </div>
+      <div class="info-item">
+        <label>Azimut (obs.)</label>
+        <span id="info-azimuth">—</span>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ── Footer ──────────────────────────────────────────── -->
+  <footer id="status-bar">
+    <span id="status-msg">Initialisation…</span>
+    <span id="last-update"></span>
+  </footer>
+
+  <!-- ── Loading overlay ─────────────────────────────────── -->
+  <div id="loading-overlay" aria-live="polite" aria-busy="true">
+    <div class="spinner" aria-hidden="true"></div>
+    <p>Chargement des données satellites…</p>
+    <p class="loading-sub">Source : CelesTrak / SGP4</p>
+  </div>
+
+  <!-- ── Scripts ─────────────────────────────────────────── -->
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/satellite.js@5.0.0/dist/satellite.min.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
