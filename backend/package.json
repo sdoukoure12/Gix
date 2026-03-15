@@ -1,0 +1,17 @@
+{
+  "name": "gix-backend",
+  "version": "0.1.0",
+  "description": "Serveur Node.js pour le projet Gix (suivi de satellites en AR)",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node --watch src/index.js",
+    "test": "node --test tests/**/*.test.js",
+    "lint": "npx --yes eslint src/ tests/ --ext .js"
+  },
+  "keywords": ["gix", "satellites", "ar", "backend"],
+  "license": "MIT",
+  "engines": {
+    "node": ">=20"
+  }
+}
