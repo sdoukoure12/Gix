@@ -11,7 +11,7 @@ Prototype web fonctionnel de suivi de satellites en temps réel avec vue ciel in
 | 🛰️ **Suivi temps réel** | Propagation orbitale SGP4 via satellite.js, mise à jour toutes les 5 secondes |
 | 📍 **Géolocalisation** | Détection automatique de la position de l'observateur (optionnel) |
 | 📡 **Données TLE** | Source principale : [CelesTrak](https://celestrak.org) (satellites visuels) |
-| 📖 **Catalogue stellaire** | 50+ étoiles brillantes (catalogue HYG/Hipparcos) |
+| 📖 **Catalogue stellaire** | 51 étoiles brillantes (catalogue HYG/Hipparcos) |
 
 ## Lancement rapide
 

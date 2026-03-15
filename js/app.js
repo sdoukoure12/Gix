@@ -234,7 +234,8 @@ function propagate(sat, date) {
     const azimuth   = look.azimuth   * 180 / Math.PI;
 
     return { lat, lon, alt, speed, elevation, azimuth };
-  } catch (_) {
+  } catch (err) {
+    console.debug('[Gix] propagation error for', sat.name, err.message);
     return null;
   }
 }
@@ -250,8 +251,9 @@ async function fetchSatellites() {
     if (resp.ok) {
       tleData = await resp.json();
     }
-  } catch (_) {
+  } catch (err) {
     // Network / CORS – fall through to fallback
+    console.warn('[Gix] CelesTrak fetch failed:', err.message);
   }
 
   if (!Array.isArray(tleData) || tleData.length === 0) {
@@ -267,7 +269,9 @@ async function fetchSatellites() {
   state.satellites = slice
     .map((tle, i) => {
       let satrec = null;
-      try { satrec = satellite.twoline2satrec(tle.TLE_LINE1, tle.TLE_LINE2); } catch (_) {}
+      try { satrec = satellite.twoline2satrec(tle.TLE_LINE1, tle.TLE_LINE2); } catch (err) {
+        console.warn('[Gix] TLE parse error for', tle.OBJECT_NAME, err.message);
+      }
       if (!satrec) return null;
 
       // Derive orbital elements from satrec when not present in JSON
