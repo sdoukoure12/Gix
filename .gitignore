@@ -1,0 +1,45 @@
+# Dépendances Node.js
+backend/node_modules/
+backend/.env
+backend/.env.*
+!backend/.env.example
+
+# Logs
+*.log
+npm-debug.log*
+
+# Système d'exploitation
+.DS_Store
+Thumbs.db
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Unity
+mobile/Library/
+mobile/Temp/
+mobile/Logs/
+mobile/obj/
+mobile/Build/
+mobile/Builds/
+mobile/UserSettings/
+mobile/*.csproj
+mobile/*.unityproj
+mobile/*.sln
+mobile/*.suo
+mobile/*.tmp
+mobile/*.user
+mobile/*.userprefs
+mobile/*.pidb
+mobile/.vs/
+mobile/ExportedObj/
+mobile/[Aa]ssets/[Ss]treamingAssets/aa.meta
+mobile/[Aa]ssets/[Ss]treamingAssets/aa/
+
+# Secrets
+*.pem
+*.key
+secrets/

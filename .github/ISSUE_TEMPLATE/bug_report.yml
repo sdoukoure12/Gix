@@ -1,0 +1,93 @@
+name: 🐛 Bug Report
+description: Signaler un bug dans Gix
+title: "[Bug] "
+labels:
+  - bug
+  - "statut:à reproduire"
+assignees: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Merci de remplir ce formulaire pour nous aider à reproduire et corriger le problème.
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Composant concerné
+      description: Quel composant est affecté ?
+      multiple: true
+      options:
+        - composant:AR
+        - composant:satellite
+        - composant:backend
+        - autre
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priorité estimée
+      options:
+        - "priorité:critique"
+        - "priorité:haute"
+        - "priorité:moyenne"
+        - "priorité:basse"
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Description du bug
+      description: Décrivez clairement le comportement observé.
+      placeholder: "Exemple : L'ISS ne s'affiche pas en AR sur iPhone 12."
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Étapes pour reproduire
+      description: Listez les étapes pour reproduire le problème.
+      placeholder: |
+        1. Ouvrir l'application
+        2. Pointer la caméra vers le ciel
+        3. …
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: Comportement attendu
+      description: Que devrait-il se passer normalement ?
+    validations:
+      required: true
+
+  - type: textarea
+    id: actual
+    attributes:
+      label: Comportement observé
+      description: Que se passe-t-il à la place ?
+    validations:
+      required: true
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environnement
+      description: Appareil, OS, version de l'application, etc.
+      placeholder: |
+        - Appareil : iPhone 12
+        - OS : iOS 17.4
+        - Version Gix : 1.1.0
+    validations:
+      required: true
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Captures d'écran / Logs
+      description: Ajoutez toute capture ou log pertinent (optionnel).
