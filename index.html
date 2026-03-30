@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#0A0F1E" />
+  <meta name="description" content="Gix – Astronomie & Suivi de satellites en temps réel" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>Gix – Ciel &amp; Satellites</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+
+  <!-- Font Awesome 6 -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" integrity="sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="anonymous" />
+
+  <!-- App CSS -->
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+
+<div class="app-container">
+
+  <!-- ════════════════════════════════════════
+       SCREEN: HOME
+  ════════════════════════════════════════ -->
+  <section id="screen-home" class="screen active" role="main">
+
+    <header class="home-header">
+      <div>
+        <p class="home-greeting">Bonsoir, explorateur</p>
+        <h1 class="home-title">Gix</h1>
+      </div>
+      <div class="home-clock">
+        <div class="clock-time" id="clock-time">--:--:--</div>
+        <div class="clock-date" id="clock-date">---</div>
+      </div>
+    </header>
+
+    <!-- AR Launch Button -->
+    <div class="hero-section">
+      <button class="ar-launch-btn" id="btn-open-ar" aria-label="Ouvrir le ciel AR">
+        <div class="ar-icon-wrap">
+          <i class="fa-solid fa-meteor"></i>
+        </div>
+        <div class="ar-btn-text">
+          <div class="ar-btn-label">Ouvrir le Ciel</div>
+          <div class="ar-btn-sub">Vue AR – Étoiles &amp; Satellites</div>
+        </div>
+        <i class="fa-solid fa-chevron-right" style="margin-left:auto;color:var(--primary);"></i>
+      </button>
+    </div>
+
+    <!-- Widgets -->
+    <div class="widget-row">
+      <div class="widget-card iss">
+        <div class="widget-icon"><i class="fa-solid fa-satellite"></i></div>
+        <div class="widget-title">ISS – Prochain passage</div>
+        <div class="widget-value" id="iss-next-pass">Calcul…</div>
+        <div class="widget-sub" id="iss-direction">Direction : —</div>
+      </div>
+      <div class="widget-card sky">
+        <div class="widget-icon"><i class="fa-solid fa-eye"></i></div>
+        <div class="widget-title">Conditions du ciel</div>
+        <div class="widget-value">Très bon</div>
+        <div class="widget-sub">Transparence 85%</div>
+      </div>
+    </div>
+
+    <!-- Upcoming Events -->
+    <div class="section-title"><i class="fa-solid fa-calendar-star"></i> Événements</div>
+    <div class="events-list" id="events-list">
+      <!-- Injected by JS -->
+    </div>
+
+    <!-- Satellites section -->
+    <div class="section-title"><i class="fa-solid fa-satellite-dish"></i> Satellites suivis</div>
+    <div class="events-list" id="sat-quick-list">
+      <!-- Injected by JS -->
+    </div>
+
+  </section><!-- /screen-home -->
+
+
+  <!-- ════════════════════════════════════════
+       SCREEN: AR SKY
+  ════════════════════════════════════════ -->
+  <section id="screen-ar" class="screen" role="main" aria-label="Vue AR du ciel">
+
+    <button class="back-btn" id="ar-back-btn" aria-label="Retour">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+
+    <canvas id="ar-canvas"></canvas>
+
+    <!-- HUD compass -->
+    <div class="ar-hud">
+      <div class="ar-compass" id="ar-compass">N 0° &nbsp;|&nbsp; Az 180°</div>
+    </div>
+
+    <!-- Info toast -->
+    <div class="ar-info-toast" id="ar-toast"></div>
+
+    <!-- Filter bar -->
+    <div class="ar-filter-bar" role="group" aria-label="Filtres AR">
+      <button class="ar-filter-btn active" data-filter="all">Tout</button>
+      <button class="ar-filter-btn" data-filter="stars">Étoiles</button>
+      <button class="ar-filter-btn" data-filter="satellites">Satellites</button>
+      <button class="ar-filter-btn" data-filter="constellations">Ciel profond</button>
+    </div>
+
+  </section><!-- /screen-ar -->
+
+
+  <!-- ════════════════════════════════════════
+       SCREEN: SATELLITE DETAIL
+  ════════════════════════════════════════ -->
+  <section id="screen-detail" class="screen" role="main" aria-label="Détails satellite">
+
+    <button class="back-btn" id="detail-back-btn" aria-label="Retour">
+      <i class="fa-solid fa-arrow-left"></i>
+    </button>
+
+    <div class="detail-header">
+      <div class="detail-badge">
+        <i class="fa-solid fa-satellite"></i>
+        <span id="detail-type">Satellite</span>
+      </div>
+      <h1 class="detail-name" id="detail-name">ISS (ZARYA)</h1>
+      <p class="detail-norad" id="detail-norad">NORAD ID: 25544</p>
+    </div>
+
+    <!-- Info Grid -->
+    <div class="info-grid">
+      <div class="info-cell">
+        <div class="info-label">Altitude</div>
+        <div class="info-value"><span id="detail-alt">—</span><span class="info-unit">km</span></div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Vitesse</div>
+        <div class="info-value"><span id="detail-speed">—</span><span class="info-unit">km/h</span></div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Latitude</div>
+        <div class="info-value"><span id="detail-lat">—</span><span class="info-unit">°</span></div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Longitude</div>
+        <div class="info-value"><span id="detail-lng">—</span><span class="info-unit">°</span></div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Inclinaison</div>
+        <div class="info-value"><span id="detail-inc">—</span><span class="info-unit">°</span></div>
+      </div>
+      <div class="info-cell">
+        <div class="info-label">Période</div>
+        <div class="info-value"><span id="detail-period">—</span><span class="info-unit">min</span></div>
+      </div>
+    </div>
+
+    <!-- Mini map -->
+    <div class="detail-map-wrap">
+      <div id="detail-map"></div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="action-row">
+      <button class="btn btn-primary" id="btn-detail-to-map">
+        <i class="fa-solid fa-map"></i> Voir trajectoire complète
+      </button>
+      <button class="btn btn-fav" id="btn-fav-toggle">
+        <i class="fa-solid fa-star"></i> Ajouter aux favoris
+      </button>
+      <button class="btn btn-secondary" id="btn-iss-view">
+        <i class="fa-solid fa-eye"></i> Ce que voit l'ISS
+      </button>
+    </div>
+
+    <!-- ISS View Panel -->
+    <div class="iss-view-panel" id="iss-view-panel">
+      <div class="iss-view-inner">
+        <div class="iss-view-img-placeholder">
+          <i class="fa-solid fa-earth-americas"></i>
+          <span>Vue de la Terre depuis l'ISS</span>
+        </div>
+        <p class="iss-view-desc" id="iss-view-desc">
+          À cette altitude et position, l'ISS survole actuellement une région
+          du globe. La vue en direct est disponible via le flux NASA HDEV.
+          L'équipage observe des milliers de kilomètres de surface terrestre chaque jour.
+        </p>
+      </div>
+    </div>
+
+  </section><!-- /screen-detail -->
+
+
+  <!-- ════════════════════════════════════════
+       SCREEN: MAP
+  ════════════════════════════════════════ -->
+  <section id="screen-map" class="screen" role="main" aria-label="Carte satellites">
+
+    <div class="map-overlay-header">
+      <div class="map-title-bar">
+        <h2>Carte Globale</h2>
+        <div class="map-live-badge">
+          <div class="map-live-dot"></div>
+          LIVE
+        </div>
+      </div>
+    </div>
+
+    <div id="satellite-map"></div>
+
+    <div class="map-time-slider">
+      <div class="map-time-label"><i class="fa-solid fa-clock"></i>&nbsp; Temps</div>
+      <div class="map-time-value" id="map-time-display">Maintenant</div>
+    </div>
+
+  </section><!-- /screen-map -->
+
+
+  <!-- ════════════════════════════════════════
+       SCREEN: NOTIFICATIONS
+  ════════════════════════════════════════ -->
+  <section id="screen-notifications" class="screen" role="main" aria-label="Notifications">
+
+    <div class="notif-header">
+      <h1>Alertes</h1>
+      <div class="notif-count-badge" id="notif-badge">5</div>
+    </div>
+
+    <div class="notif-list" id="notif-list">
+      <!-- Injected by JS -->
+    </div>
+
+  </section><!-- /screen-notifications -->
+
+
+  <!-- ════════════════════════════════════════
+       SCREEN: FAVORITES
+  ════════════════════════════════════════ -->
+  <section id="screen-favorites" class="screen" role="main" aria-label="Favoris">
+
+    <div class="favs-header">
+      <h1>Favoris</h1>
+      <p>Vos objets suivis</p>
+    </div>
+
+    <div class="favs-list" id="favs-list">
+      <!-- Injected by JS -->
+    </div>
+
+  </section><!-- /screen-favorites -->
+
+
+  <!-- ════════════════════════════════════════
+       SCREEN: PROFILE
+  ════════════════════════════════════════ -->
+  <section id="screen-profile" class="screen" role="main" aria-label="Profil">
+
+    <div class="profile-header">
+      <div class="profile-avatar"><i class="fa-solid fa-user-astronaut"></i></div>
+      <div class="profile-name">Astronome</div>
+      <div class="profile-sub">Membre depuis 2024 · Niveau Étoile</div>
+    </div>
+
+    <div class="profile-stats">
+      <div class="stat-cell">
+        <div class="stat-value" id="stat-tracked">8</div>
+        <div class="stat-label">Suivis</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value" id="stat-favs">0</div>
+        <div class="stat-label">Favoris</div>
+      </div>
+      <div class="stat-cell">
+        <div class="stat-value">42</div>
+        <div class="stat-label">Sessions</div>
+      </div>
+    </div>
+
+    <div class="section-title"><i class="fa-solid fa-gear"></i> Paramètres</div>
+
+    <div class="profile-menu">
+      <div class="menu-item">
+        <i class="fa-solid fa-bell"></i>
+        <span>Notifications</span>
+        <i class="fa-solid fa-chevron-right menu-chevron"></i>
+      </div>
+      <div class="menu-item">
+        <i class="fa-solid fa-location-dot"></i>
+        <span>Localisation</span>
+        <i class="fa-solid fa-chevron-right menu-chevron"></i>
+      </div>
+      <div class="menu-item">
+        <i class="fa-solid fa-moon"></i>
+        <span>Mode sombre</span>
+        <i class="fa-solid fa-chevron-right menu-chevron"></i>
+      </div>
+      <div class="menu-item">
+        <i class="fa-solid fa-circle-info"></i>
+        <span>À propos de Gix</span>
+        <i class="fa-solid fa-chevron-right menu-chevron"></i>
+      </div>
+    </div>
+
+  </section><!-- /screen-profile -->
+
+
+  <!-- ════════════════════════════════════════
+       BOTTOM NAVIGATION
+  ════════════════════════════════════════ -->
+  <nav class="bottom-nav" role="navigation" aria-label="Navigation principale">
+    <button class="nav-item active" data-screen="home" aria-label="Accueil">
+      <i class="fa-solid fa-house-chimney"></i>
+      <span>Accueil</span>
+    </button>
+    <button class="nav-item" data-screen="map" aria-label="Carte">
+      <i class="fa-solid fa-globe"></i>
+      <span>Carte</span>
+    </button>
+    <button class="nav-item" data-screen="notifications" aria-label="Alertes">
+      <i class="fa-solid fa-bell"></i>
+      <span>Alertes</span>
+    </button>
+    <button class="nav-item" data-screen="favorites" aria-label="Favoris">
+      <i class="fa-solid fa-star"></i>
+      <span>Favoris</span>
+    </button>
+    <button class="nav-item" data-screen="profile" aria-label="Profil">
+      <i class="fa-solid fa-user"></i>
+      <span>Profil</span>
+    </button>
+  </nav>
+
+</div><!-- /app-container -->
+
+<!-- ── External Libraries ── -->
+<!-- Leaflet JS -->
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV/XN2GqLs=" crossorigin="anonymous"></script>
+
+<!-- satellite.js -->
+<script src="https://cdn.jsdelivr.net/npm/satellite.js@5.0.0/dist/satellite.min.js"></script>
+
+<!-- App JS -->
+<script src="js/app.js"></script>
+
+</body>
+</html>
